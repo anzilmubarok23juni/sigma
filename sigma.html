@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login - Sigma</title>
+    <style>
+        :root{
+            --bg:#f3f6fb;
+            --card:#ffffff;
+            --accent:#3b82f6;
+            --muted:#6b7280;
+            --error:#ef4444;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        html,body{height:100%;}
+        body{
+            margin:0;
+            background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);
+            display:grid;
+            place-items:center;
+            padding:24px;
+            color:#111827;
+        }
+        .card{
+            width:100%;
+            max-width:420px;
+            background:var(--card);
+            color:var(--card-foreground, inherit);
+            border-radius:12px;
+            box-shadow:0 8px 30px rgba(15,23,42,0.08);
+            padding:28px;
+            box-sizing:border-box;
+            position:relative;
+            overflow:hidden;
+            border:1px solid rgba(15,23,42,0.04);
+            transform:translateY(8px);
+            transition:transform .18s ease, box-shadow .18s ease, border-color .12s ease, background .18s ease;
+            animation:cardEnter .6s cubic-bezier(.2,.9,.2,1) both;
+        }
+
+        /* subtle accent band at the top for customizable color */
+        .card::before{
+            content:'';
+            position:absolute;
+            left:0;
+            right:0;
+            top:0;
+            height:6px;
+            background:linear-gradient(90deg, var(--accent) 0%, color-mix(in srgb, var(--accent), transparent 45%));
+            border-top-left-radius:12px;
+            border-top-right-radius:12px;
+            pointer-events:none;
+            transform-origin:center;
+            transition:opacity .18s ease, transform .18s ease;
+        }
+
+        .card:hover{
+            transform:translateY(0);
+            box-shadow:0 20px 40px rgba(15,23,42,0.12);
+            border-color:rgba(15,23,42,0.06);
+        }
+
+        /* small entrance/float animation for form elements */
+        @keyframes cardEnter{
+            from { opacity:0; transform:translateY(20px) scale(.995); }
+            60% { opacity:1; transform:translateY(-4px) scale(1.002); }
+            to { opacity:1; transform:translateY(0) scale(1); }
+        }
+
+        /* animate focus/interaction with an accent glow that's theme-aware */
+        input:focus, .btn:focus, .toggle-pass:focus {
+            box-shadow: 0 6px 18px rgba(59,130,246,0.06), 0 0 0 6px rgba(59,130,246,0.06);
+            transition: box-shadow .18s ease;
+        }
+
+        /* small decorative micro-interaction for the submit button */
+        .btn {
+            transform:translateY(0);
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+        }
+        .btn:active{ transform:translateY(1px) scale(.998); box-shadow:0 6px 18px rgba(59,130,246,0.08); }
+
+        /* theme toggle support: add data-theme="dark" on <html> or <body> to switch */
+        :root[data-theme='dark'], body[data-theme='dark']{
+            --bg:#0b1220;
+            --card:#071021;
+            --card-foreground:#e6eef8;
+            --accent:#60a5fa;
+            --muted:#9ca3af;
+            --error:#fb7185;
+        }
+
+        /* alternative darker accent option via class on the card */
+        .card.accent-rose::before{ background:linear-gradient(90deg, #fb7185 0%, #f97316 100%); }
+        .card.accent-green::before{ background:linear-gradient(90deg, #10b981 0%, #06b6d4 100%); }
+        .card.accent-purple::before{ background:linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%); }
+
+        /* expose easy custom properties for integrators */
+        /* Usage: set --accent, --card, --card-foreground on :root or body to theme the form */
+        /* e.g. <body style="--accent:#ff7a59; --card:#fff7f5;"> */
+        h1{margin:0 0 6px;font-size:20px;}
+        p.lead{margin:0 0 18px;color:var(--muted);font-size:14px;}
+        label{display:block;font-size:13px;margin:10px 0 6px;}
+        input[type="text"], input[type="password"], input[type="email"]{
+            width:100%;
+            padding:10px 12px;
+            border:1px solid #e6e9ef;
+            border-radius:8px;
+            font-size:14px;
+            box-sizing:border-box;
+            outline:none;
+            transition:box-shadow .12s, border-color .12s;
+        }
+        input:focus{box-shadow:0 0 0 4px rgba(59,130,246,0.08);border-color:var(--accent);}
+        .field-row{display:flex;gap:10px;align-items:center;}
+        .remember{display:flex;align-items:center;gap:8px;margin-top:12px;}
+        .btn{
+            margin-top:16px;
+            width:100%;
+            padding:10px 12px;
+            background:var(--accent);
+            color:white;
+            border:0;
+            border-radius:8px;
+            font-weight:600;
+            cursor:pointer;
+            font-size:15px;
+        }
+        .muted-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:var(--muted)}
+        .toggle-pass{background:none;border:0;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px}
+        .msg{margin-top:12px;font-size:14px}
+        .msg.error{color:var(--error)}
+        .msg.success{color:green}
+        small.link{color:var(--accent);cursor:pointer}
+        @media (max-width:420px){ .card{padding:20px;} }
+    </style>
+</head>
+<body>
+    <main class="card" role="main" aria-labelledby="loginTitle">
+        <h1 id="loginTitle">Sign in to alokhitam</h1>
+        <p class="lead">Mampus akun lu hack, gc masukin pw nya</p>
+
+        <form id="loginForm" novalidate>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="username" required placeholder="you@example.com" />
+
+            <label for="password">Password</label>
+            <div class="field-row" style="align-items:center">
+                <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+                <button type="button" id="togglePassword" class="toggle-pass" aria-pressed="false" aria-label="Show password">Show</button>
+            </div>
+
+            <div class="remember">
+                <input id="remember" type="checkbox" />
+                <label for="remember" style="margin:0;font-size:13px">Remember me</label>
+            </div>
+
+            <button class="btn" type="submit">Sign in</button>
+
+            <div class="muted-row">
+                <small class="link" id="forgot">Forgot password?</small>
+                <small style="color:var(--muted)">Need an account? <span class="link" id="register">Register</span></small>
+            </div>
+
+            <div id="message" class="msg" role="status" aria-live="polite"></div>
+        </form>
+    </main>
+
+    <script>
+        // Minimal client-side login form with validation and a mock server check.
+        // Replace the mock check with a real POST to your server endpoint.
+        const form = document.getElementById('loginForm');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const message = document.getElementById('message');
+        const toggle = document.getElementById('togglePassword');
+
+        toggle.addEventListener('click', () => {
+            const shown = password.type === 'text';
+            password.type = shown ? 'password' : 'text';
+            toggle.textContent = shown ? 'Show' : 'Hide';
+            toggle.setAttribute('aria-pressed', String(!shown));
+        });
+
+        function showMessage(text, type='error'){
+            message.textContent = text;
+            message.className = 'msg ' + (type === 'error' ? 'error' : 'success');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            message.textContent = '';
+
+            if (!email.checkValidity()) {
+                showMessage('Please enter a valid email address.');
+                email.focus();
+                return;
+            }
+            if (!password.value) {
+                showMessage('Please enter your password.');
+                password.focus();
+                return;
+            }
+
+            // Mock authentication:
+            // For demo only: accept email user@example.com and password password123
+            showMessage('Checking credentials...', 'success');
+
+            // Simulate network delay
+            await new Promise(r => setTimeout(r, 700));
+
+            const mockOk = email.value.trim().toLowerCase() === 'user@example.com' &&
+                                         password.value === 'password123';
+
+            if (mockOk) {
+                showMessage('Login successful! Redirecting...', 'success');
+                // Example: redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html'; // change as needed
+                }, 900);
+            } else {
+                showMessage('Invalid email or password.');
+            }
+
+            // Real request example (commented):
+            /*
+            try {
+                const resp = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({email: email.value, password: password.value})
+                });
+                if (!resp.ok) throw new Error('Authentication failed');
+                const data = await resp.json();
+                // handle success (store token, redirect, etc.)
+            } catch (err) {
+                showMessage(err.message || 'Login failed.');
+            }
+            */
+        });
+
+        // Small UX handlers
+        document.getElementById('forgot').addEventListener('click', () => {
+            alert('Password reset flow should be implemented on the server.');
+        });
+        document.getElementById('register').addEventListener('click', () => {
+            alert('Registration page link goes here.');
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
